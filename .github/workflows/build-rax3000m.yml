@@ -1,11 +1,9 @@
 #=================================================
 # Description: Build OpenWrt using GitHub Actions
 # Lisence: MIT
-# Author: eSirPlayground
-# Youtube Channel: https://goo.gl/fvkdwm 
 #=================================================
 
-name: Build_Redmi_AC2100
+name: Build_Rax3000m_nand
 
 # Add a button to trigger the workflow
 on: 
