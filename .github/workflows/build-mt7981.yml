@@ -77,10 +77,9 @@ jobs:
       working-directory: ./openwrt
       run: |
         make -j$(nproc)
-        rm -rf openwrt/bin/packages
         
     - name : 打包固件
       uses: actions/upload-artifact@main
       with:
         name: immortalwrt-mt7981${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
-        path: openwrt/bin/
+        path: openwrt/bin/targets/
