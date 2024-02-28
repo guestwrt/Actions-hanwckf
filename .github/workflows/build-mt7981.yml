@@ -12,7 +12,6 @@ on:
 
 jobs:
   build:
-    name: 定义编译系统版本
     runs-on: ubuntu-latest
 
     steps:
