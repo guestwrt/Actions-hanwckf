@@ -81,5 +81,5 @@ jobs:
     - name : 打包固件
       uses: actions/upload-artifact@main
       with:
-        name: immortalwrt-mt7981${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        name: immortalwrt-mt7981${{ env.FILE_DATE }}
         path: openwrt/bin/targets/
