@@ -77,10 +77,12 @@ jobs:
       working-directory: ./openwrt
       run: |
         make -j$(nproc)
+        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+        [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
         echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
         
     - name : 打包固件
       uses: actions/upload-artifact@main
       with:
-        name: immortalwrt-mt7981${{ env.FILE_DATE }}
+        name: immortalwrt-mt7981${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: openwrt/bin/targets/
