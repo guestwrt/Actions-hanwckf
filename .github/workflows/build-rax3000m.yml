@@ -3,22 +3,23 @@
 # Lisence: MIT
 #=================================================
 
-name: Build_Rax3000m_nand
+name: 编译 immortalwrt-mt798x 固件
 
-# Add a button to trigger the workflow
+# 以下开关，触发工作流
 on: 
   repository_dispatch:
   workflow_dispatch:
 
 jobs:
   build:
+    name: 定义编译所用的系统版本
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
+    - name: 准备完毕
       uses: actions/checkout@main
 
-    - name: Initialization environment
+    - name: 初始化环境
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
@@ -46,7 +47,7 @@ jobs:
         sudo -E apt-get -y install ack antlr3 aria2 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip libpython3-dev qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
         sudo -E apt-get -y autoremove --purge
         sudo -E apt-get clean
-    - name: Clone source code
+    - name: 下载源码和分支
       env: 
         REPO_URL: https://github.com/hanwckf/immortalwrt-mt798x
         REPO_BRANCH: openwrt-21.02
@@ -54,38 +55,40 @@ jobs:
         git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
         cd openwrt
         echo "src-git ssrp https://github.com/hanwckf/immortalwrt-mt798x.git" >> ./feeds.conf.default
-    - name: Update & Install feeds
+    - name: 更新安装 feeds
       working-directory: ./openwrt
       run: |
         ./scripts/feeds update -a
         ./scripts/feeds install -a
   
-    - name: Load custom configuration
+    - name: 加载自定义config设置
       env:
         CONFIG_FILE: .config
       run: |
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         cd openwrt && make defconfig
         
-    - name: Download package
+    - name: 下载软件包
       working-directory: ./openwrt
       run: |
         make download -j16
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
         
-    - name: Build firmware
+    - name: 多线程编译固件
       working-directory: ./openwrt
       run: |
         echo -e "$(nproc) thread build."
         make -j$(nproc) V=s
-        echo "status=success" >> $GITHUB_OUTPUT
-        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
-        [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
-        echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
         
-    - name : Upload artifact
+    - name: 整理固件文件夹
+      id: organize
+      run: |
+        cd openwrt/bin/targets/*/*
+        rm -rf packages
+        
+    - name : 打包固件和ipk
       uses: actions/upload-artifact@main
       with:
-        name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        name: immortalwrt-mt798x${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: openwrt/bin
