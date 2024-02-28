@@ -79,7 +79,7 @@ jobs:
       working-directory: ./openwrt
       run: |
         echo -e "$(nproc) thread build."
-        make -j$(nproc) V=s
+        make -j$(nproc)
         
     - name : 打包固件
       uses: actions/upload-artifact@main
