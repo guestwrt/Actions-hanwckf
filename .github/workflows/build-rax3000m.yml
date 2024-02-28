@@ -12,11 +12,11 @@ on:
 
 jobs:
   build:
-    name: 定义编译所用的系统版本
+    name: 定义编译系统版本
     runs-on: ubuntu-latest
 
     steps:
-    - name: 准备完毕
+    - name: 工作完毕
       uses: actions/checkout@main
 
     - name: 初始化环境
@@ -55,13 +55,13 @@ jobs:
         git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
         cd openwrt
         echo "src-git ssrp https://github.com/hanwckf/immortalwrt-mt798x.git" >> ./feeds.conf.default
-    - name: 更新安装 feeds
+    - name: 更新安装feeds
       working-directory: ./openwrt
       run: |
         ./scripts/feeds update -a
         ./scripts/feeds install -a
   
-    - name: 加载自定义config设置
+    - name: 加载config
       env:
         CONFIG_FILE: .config
       run: |
@@ -75,7 +75,7 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
         
-    - name: 多线程编译固件
+    - name: 多线程编译
       working-directory: ./openwrt
       run: |
         echo -e "$(nproc) thread build."
@@ -83,8 +83,8 @@ jobs:
         cd openwrt/bin/targets/*/*
         rm -rf packages
         
-    - name : 打包固件和ipk
+    - name : 打包固件
       uses: actions/upload-artifact@main
       with:
-        name: immortalwrt-mt798x${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        name: mt7981${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: openwrt/bin
