@@ -77,8 +77,7 @@ jobs:
       working-directory: ./openwrt
       run: |
         make -j$(nproc)
-        cd openwrt/bin/targets/*/*
-        rm -rf packages
+        rm -rf openwrt/bin/packages
         
     - name : 打包固件
       uses: actions/upload-artifact@main
