@@ -80,9 +80,11 @@ jobs:
       run: |
         echo -e "$(nproc) thread build."
         make -j$(nproc)
+        cd openwrt/bin/targets/*/*
+        rm -rf packages
         
     - name : 打包固件
       uses: actions/upload-artifact@main
       with:
         name: mt7981${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
-        path: openwrt/bin/targets
+        path: openwrt/bin/
