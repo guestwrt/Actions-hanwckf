@@ -1,0 +1,87 @@
+#=================================================
+# Description: Build OpenWrt using GitHub Actions
+# Lisence: MIT
+#=================================================
+
+name: 编译 immortalwrt-mt7981 固件
+
+# 以下开关，触发工作流
+on: 
+  repository_dispatch:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: 定义编译系统版本
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 工作完毕
+      uses: actions/checkout@main
+
+    - name: 初始化环境
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set +e
+        docker rmi `docker images -q`
+        sudo rm -rf \
+          /usr/share/dotnet \
+          /etc/mysql \
+          /etc/php
+        sudo -E apt-get -y purge \
+          azure-cli \
+          ghc* \
+          zulu* \
+          hhvm \
+          llvm* \
+          firefox \
+          google* \
+          dotnet* \
+          powershell \
+          openjdk* \
+          mysql* \
+          php*
+        sudo -E apt-get update
+        sudo -E apt-get -y install ack antlr3 aria2 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip libpython3-dev qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
+        sudo -E apt-get -y autoremove --purge
+        sudo -E apt-get clean
+    - name: 下载源码和分支
+      env: 
+        REPO_URL: https://github.com/hanwckf/immortalwrt-mt798x
+        REPO_BRANCH: openwrt-21.02
+      run: |
+        git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+        cd openwrt
+        echo "src-git ssrp https://github.com/hanwckf/immortalwrt-mt798x.git" >> ./feeds.conf.default
+    - name: 更新安装feeds
+      working-directory: ./openwrt
+      run: |
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+  
+    - name: 加载config
+      working-directory: ./openwrt
+      run: |
+        cp -f defconfig/mt7981-ax3000.config .config
+        cd openwrt && make defconfig
+        
+    - name: 下载软件包
+      working-directory: ./openwrt
+      run: |
+        make download -j$(nproc)
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+        
+    - name: 多线程编译
+      working-directory: ./openwrt
+      run: |
+        make -j$(nproc)
+        cd openwrt/bin/targets/*/*
+        rm -rf packages
+        
+    - name : 打包固件
+      uses: actions/upload-artifact@main
+      with:
+        name: immortalwrt-mt7981${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        path: openwrt/bin/
