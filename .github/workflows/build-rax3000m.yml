@@ -25,7 +25,6 @@ jobs:
       run: |
         set +e
         docker rmi `docker images -q`
-        echo "Deleting files, please wait ..."
         sudo rm -rf \
           /usr/share/dotnet \
           /etc/mysql \
@@ -78,7 +77,6 @@ jobs:
     - name: 多线程编译
       working-directory: ./openwrt
       run: |
-        echo -e "$(nproc) thread build."
         make -j$(nproc)
         cd openwrt/bin/targets/*/*
         rm -rf packages
