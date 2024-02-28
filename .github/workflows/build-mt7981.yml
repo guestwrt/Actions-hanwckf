@@ -64,7 +64,7 @@ jobs:
       working-directory: ./openwrt
       run: |
         cp -f defconfig/mt7981-ax3000.config .config
-        cd openwrt && make defconfig
+        make defconfig
         
     - name: 下载软件包
       working-directory: ./openwrt
