@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: 工作完毕
+    - name: 工作流完毕
       uses: actions/checkout@main
 
     - name: 初始化环境
