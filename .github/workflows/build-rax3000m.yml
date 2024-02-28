@@ -80,10 +80,6 @@ jobs:
       run: |
         echo -e "$(nproc) thread build."
         make -j$(nproc) V=s
-        
-    - name: 整理固件文件夹
-      id: organize
-      run: |
         cd openwrt/bin/targets/*/*
         rm -rf packages
         
