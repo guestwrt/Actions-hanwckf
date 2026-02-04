@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
     - name: 工作流完毕
@@ -62,3 +62,4 @@ jobs:
       with:
         name: Rax3000m_nand${{ env.FILE_DATE }}
         path: openwrt/bin/targets/
+
