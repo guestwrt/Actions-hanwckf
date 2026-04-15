@@ -40,7 +40,7 @@ jobs:
   
     - name: 加载config
       env:
-        CONFIG_FILE: config_adguardhome
+        CONFIG_FILE: .config_adguardhome
       run: |
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         cd openwrt && make defconfig
