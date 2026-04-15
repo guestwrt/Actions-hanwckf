@@ -23,6 +23,7 @@ jobs:
         DEBIAN_FRONTEND: noninteractive
       run: |
         sudo bash -c 'bash <(curl -sL https://build-scripts.immortalwrt.eu.org/init_build_environment.sh)'
+        sudo timedatectl set-timezone 'Asia/Shanghai'
     - name: 下载源码和分支
       env: 
         REPO_URL: https://github.com/hanwckf/immortalwrt-mt798x
