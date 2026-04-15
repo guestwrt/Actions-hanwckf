@@ -3,7 +3,7 @@
 # Lisence: MIT
 #=================================================
 
-name: 编译 mt7981系列 固件
+name: 编译 Rax3000m_nand_adguardhome 固件
 
 # 以下开关，触发工作流
 on: 
@@ -22,29 +22,7 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        set +e
-        docker rmi `docker images -q`
-        sudo rm -rf \
-          /usr/share/dotnet \
-          /etc/mysql \
-          /etc/php
-        sudo -E apt-get -y purge \
-          azure-cli \
-          ghc* \
-          zulu* \
-          hhvm \
-          llvm* \
-          firefox \
-          google* \
-          dotnet* \
-          powershell \
-          openjdk* \
-          mysql* \
-          php*
-        sudo -E apt-get update
-        sudo -E apt-get -y install ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache clang clangd cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool lib32gcc-s1 libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5 libncursesw5-dev libreadline-dev libssl-dev libtool lld lldb lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip python3-ply python3-docutils qemu-utils re2c rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
-        sudo -E apt-get -y autoremove --purge
-        sudo -E apt-get clean
+        sudo bash -c 'bash <(curl -sL https://build-scripts.immortalwrt.eu.org/init_build_environment.sh)'
     - name: 下载源码和分支
       env: 
         REPO_URL: https://github.com/hanwckf/immortalwrt-mt798x
@@ -52,6 +30,7 @@ jobs:
       run: |
         git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
         cd openwrt
+        git clone https://github.com/rufengsuixing/luci-app-adguardhome.git ./package/luci-app-adguardhome
         echo "src-git ssrp https://github.com/hanwckf/immortalwrt-mt798x.git" >> ./feeds.conf.default
     - name: 更新安装feeds
       working-directory: ./openwrt
@@ -60,10 +39,11 @@ jobs:
         ./scripts/feeds install -a
   
     - name: 加载config
-      working-directory: ./openwrt
+      env:
+        CONFIG_FILE: config_adguardhome
       run: |
-        cp -f defconfig/mt7981-ax3000.config .config
-        make defconfig
+        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+        cd openwrt && make defconfig
         
     - name: 下载软件包
       working-directory: ./openwrt
@@ -81,5 +61,5 @@ jobs:
     - name : 打包固件
       uses: actions/upload-artifact@main
       with:
-        name: immortalwrt-mt7981${{ env.FILE_DATE }}
+        name: Rax3000m_nand${{ env.FILE_DATE }}
         path: openwrt/bin/targets/
