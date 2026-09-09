@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@main
 
       # 新增：获取当前日期
       - name: Get current date
@@ -26,7 +26,7 @@ jobs:
           ./scripts/feeds install -a
 
 
-      - name: 加载config
+      - name: loading config & build
         env:
           CONFIG_FILE: 25.12/.config
         run: |
@@ -44,14 +44,14 @@ jobs:
           rm -rf bin/targets/mediatek/filogic/packages
           
       - name: Upload firmware
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@main
         with:
           name: immortalwrt-25.12-rax3000m-firmware
           path: openwrt/bin/targets/mediatek/filogic/
           if-no-files-found: warn
 
       - name: Create Release and Upload Assets
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@main
         with:
           name: "RAX3000M 固件 ${{ steps.date.outputs.date }} #${{ github.run_number }}"
           tag_name: "build-${{ steps.date.outputs.date }}-${{ github.run_number }}"
@@ -62,7 +62,6 @@ jobs:
             - 编译编号：#${{ github.run_number }}
             - 设备：CMCC RAX3000M (eMMC / NAND)
             - 内核：6.12（25.12 版本）
-            - 包含插件：OpenClash、磁盘管理、Argon 主题等
           files: openwrt/bin/targets/mediatek/filogic/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
