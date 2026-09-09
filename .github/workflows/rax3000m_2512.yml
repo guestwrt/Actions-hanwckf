@@ -17,6 +17,8 @@ jobs:
 
       - name: Build firmware
         run: |
+          sudo bash -c 'bash <(curl -sL https://build-scripts.immortalwrt.eu.org/init_build_environment.sh)'
+          sudo timedatectl set-timezone 'Asia/Shanghai'
           # 克隆 25.12 仓库源码
           git clone https://github.com/tfnhui/immortalwrt-mt798x-25.12.git openwrt
           cd openwrt
