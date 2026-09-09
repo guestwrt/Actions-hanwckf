@@ -24,9 +24,17 @@ jobs:
           # 更新 feeds
           ./scripts/feeds update -a
           ./scripts/feeds install -a
+
+
+      - name: 加载config
+        env:
+          CONFIG_FILE: .config
+        run: |
+          [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+          cd openwrt && make defconfig
           
           # 直接复制配置文件
-          cp defconfig/rax3000m-openclash.config .config
+          # cp defconfig/rax3000m-openclash.config .config
           # 下载编译所需的源码包
           make download -j$(nproc)
           # 开始编译
