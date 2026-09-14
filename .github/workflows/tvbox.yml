@@ -1,8 +1,6 @@
 name: Test
 
 on:
-  schedule:
-    - cron: 59 6 * * *
   workflow_dispatch:
     inputs:
       rebuild:
